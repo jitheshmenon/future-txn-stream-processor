@@ -1,0 +1,14 @@
+package com.abnamro.challenge.futuretxn.config;
+
+public interface FieldConstants {
+
+  String ACCOUNT_NUMBER = "ACCOUNT_NUMBER";
+  String CLIENT_NUMBER = "CLIENT NUMBER";
+  String CLIENT_TYPE = "CLIENT TYPE";
+  String SUBACCOUNT_NUMBER = "SUBACCOUNT NUMBER";
+  String PRODUCT_GROUP_CODE = "PRODUCT GROUP CODE";
+  String EXPIRATION_DATE = "EXPIRATION DATE";
+  String QUANTITY_LONG = "QUANTITY LONG";
+  String QUANTITY_SHORT = "QUANTITY SHORT";
+  String EXTERNAL_NUMBER = "EXTERNAL NUMBER";
+}

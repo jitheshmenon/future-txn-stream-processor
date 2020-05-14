@@ -1,0 +1,104 @@
+---
+version: '2'
+
+networks:
+  kafkanet: {}
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.0
+    hostname: zookeeper
+    container_name: zookeeper
+    networks:
+      - kafkanet
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-server:5.5.0
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
+    networks:
+      - kafkanet
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./data:/data
+      - ./config:/kafka-connect-config
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:5.5.0
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - zookeeper
+      - broker
+    networks:
+      - kafkanet
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+
+  ## Postgres Database and admin UI
+#  postgres:
+#    image: postgres:11
+#    networks:
+#      - kafkanet
+#    ports:
+#      - "5432:5432"
+#    environment:
+#      POSTGRES_PASSWORD: "admin"
+#
+#  postgres-setup:
+#    image: postgres:11-alpine
+#    networks:
+#      - kafkanet
+#    volumes:
+#      - ./postgresSetup.sh:/postgresSetup.sh
+#    entrypoint: ["bash", "/postgresSetup.sh"]
+#    depends_on:
+#      - postgres
+#
+#  adminer:
+#    image: adminer
+#    networks:
+#      - kafkanet
+#    ports:
+#      - 3080:8080
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    networks:
+      - kafkanet
+    ports:
+      - "9000:9000"
+    depends_on:
+      - broker
+    environment:
+      KAFKA_BROKERCONNECT: 'broker:29092'
+      SCHEMAREGISTRY_CONNECT: 'http://schema-registry:8081'
+      JVM_OPTS: '-Xms32M -Xmx64M'
+      SERVER_SERVLET_CONTEXTPATH: '/'

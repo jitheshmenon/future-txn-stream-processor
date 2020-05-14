@@ -1,0 +1,39 @@
+---
+spring:
+  cloud:
+    stream:
+      bindings:
+        input:
+          destination: connect-input
+        output:
+          destination: output-report
+      schemaRegistryClient:
+        endpoint: http://localhost:8081
+      kafka:
+        streams:
+          binder:
+            configuration:
+              application:
+                id: APP-1
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+              schema:
+                registry:
+                  url: ${spring.cloud.stream.schema-registry-client.endpoint}
+              deserializationExceptionHandler: connect-input.DLT
+          bindings:
+            input:
+              consumer:
+                auto-offset-reset: earliest
+                keySerde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                valueSerde: org.apache.kafka.common.serialization.Serdes$StringSerde
+            output:
+              producer:
+                keySerde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                valueSerde: org.apache.kafka.common.serialization.Serdes$DoubleSerde
+        binder:
+          brokers: localhost:9092
+
