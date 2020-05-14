@@ -52,6 +52,12 @@ The materialized view include,
 The REST API for querying the Kafka streams is defined in `com.abnamro.challenge.futuretxn.api.Controller` class.
 The controller allows a simple GET request for fetching the transaction amount summary for all customers and products.
 
+## Scheduler ##
+The report generation process is added as a Spring Scheduled task and the same will execute every day and generate the 
+CSV file locally. 
+
+`Scheduler - com.abnamro.challenge.futuretxn.scheduler.ScheduledTask` 
+
 ## Directory Structure ##
 
 ```bash

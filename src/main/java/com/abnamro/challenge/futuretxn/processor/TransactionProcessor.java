@@ -4,6 +4,7 @@ import com.abnamro.challenge.avro.InputRecord;
 import com.abnamro.challenge.futuretxn.config.StreamBinding;
 import com.abnamro.challenge.futuretxn.config.StreamConstants;
 import com.abnamro.challenge.futuretxn.mapper.InputValueMapper;
+import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
@@ -11,6 +12,7 @@ import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.TimeWindows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Input;
@@ -31,6 +33,13 @@ public class TransactionProcessor {
     KStream<String, InputRecord> stream =
         eventStream.mapValues(inputValueMapper)
         .map((key, value) -> new KeyValue<>(value.getExternalNumber().toString(), value));
+
+    stream
+        .map((key, value) -> new KeyValue<>(value.getClientInformation().toString(), value.getExternalNumber().toString()))
+        .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
+        .windowedBy(TimeWindows.of(Duration.ofDays(1)))
+        .count(Materialized.as("client-counts"))
+        .toStream().to("CLIENT_COUNT");
 
     stream
         .map((key, value) -> new KeyValue<>(getCustomerProductStr(value), value.getTransactionAmount()))

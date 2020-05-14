@@ -39,3 +39,4 @@ spring:
         binder:
           brokers: localhost:9092
 
+
