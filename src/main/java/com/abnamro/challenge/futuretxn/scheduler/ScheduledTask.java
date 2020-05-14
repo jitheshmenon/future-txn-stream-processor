@@ -30,32 +30,22 @@ public class ScheduledTask {
   public void scheduleTaskWithCronExpression() {
     log.info("Report Extract Task :: Execution Start Time - {}", dateTimeFormatter.format(LocalDateTime.now()));
 
-    FileWriter out = null;
     final ReadOnlyKeyValueStore<String, Double> prodTotal =
         interactiveQueryService.getQueryableStore("customer_product_total", QueryableStoreTypes.keyValueStore());
-    try {
-      out = new FileWriter("Output.csv");
-      CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT);
+
+    try (CSVPrinter writer = new CSVPrinter(new FileWriter("Output.csv"), CSVFormat.DEFAULT)) {
       KeyValueIterator<String, Double> result = prodTotal.all();
       if (result.hasNext()) {
         while (result.hasNext()) {
           KeyValue<String, Double> kvEntry = result.next();
-          printer.printRecord(kvEntry.key, Double.toString(kvEntry.value));
+          writer.printRecord(kvEntry.key, Double.toString(kvEntry.value));
         }
       }
-    } catch (IOException e) {
-      log.error("Unable to generate daily report");
-    } finally {
-      if (out != null) {
-        try {
-          out.close();
-        } catch (IOException e) {
-          log.error("Unable to close the file..");
-        }
-      }
+    } catch (IOException ioe) {
+      log.error("Unable to process the scheduled Job", ioe);
     }
-    log.info("Report Extract Task :: Execution End Time - {}", dateTimeFormatter.format(LocalDateTime.now()));
 
+    log.info("Report Extract Task :: Execution End Time - {}", dateTimeFormatter.format(LocalDateTime.now()));
   }
 
 }
