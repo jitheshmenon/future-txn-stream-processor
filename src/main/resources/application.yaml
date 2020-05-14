@@ -5,8 +5,8 @@ spring:
       bindings:
         input:
           destination: connect-input
-        output:
-          destination: output-report
+        input-formatted:
+          destination: input-records
       schemaRegistryClient:
         endpoint: http://localhost:8081
       kafka:
@@ -30,10 +30,12 @@ spring:
                 auto-offset-reset: earliest
                 keySerde: org.apache.kafka.common.serialization.Serdes$StringSerde
                 valueSerde: org.apache.kafka.common.serialization.Serdes$StringSerde
-            output:
+            input-formatted:
               producer:
+                specific.avro.reader: true
+                useNativeDecoding: true
                 keySerde: org.apache.kafka.common.serialization.Serdes$StringSerde
-                valueSerde: org.apache.kafka.common.serialization.Serdes$DoubleSerde
+                valueSerde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
         binder:
           brokers: localhost:9092
 

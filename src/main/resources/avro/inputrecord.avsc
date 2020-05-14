@@ -1,0 +1,34 @@
+{"namespace": "com.abnamro.challenge.avro",
+ "type": "record",
+ "name": "InputRecord",
+ "fields": [
+     {"name": "externalNumber",   "type": "string"},
+     {"name": "transactionAmount", "type": "double"},
+     {
+         "name": "clientInformation",
+         "type": {
+             "type" : "record",
+             "name" : "ClientInformation",
+             "fields" : [
+                 {"name": "clientType", "type": "string"},
+                 {"name": "clientNumber", "type": "int"},
+                 {"name": "accountNumber", "type": "int"},
+                {"name": "subAccountNumber", "type": "int"}
+             ]
+         }
+     },
+     {
+        "name": "productInformation",
+        "type": {
+            "type" : "record",
+            "name" : "ProductInformation",
+            "fields" : [
+                {"name": "exchangeCode", "type": "string"},
+                {"name": "productGroupCode", "type": "string"},
+                {"name": "symbol", "type": "string"},
+               {"name": "expirationDate", "type": "string"}
+            ]
+        }
+    }
+ ]
+}

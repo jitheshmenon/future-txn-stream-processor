@@ -2,7 +2,7 @@ package com.abnamro.challenge.futuretxn.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.abnamro.challenge.futuretxn.model.InputRecord;
+import com.abnamro.challenge.avro.InputRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -51,9 +51,5 @@ class InputValueMapperTest {
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> inputValueMapper.apply(""));
     assertEquals("The input data is missing or in an invalid format", exception.getMessage());
-  }
-
-  @Test
-  void fixedLengthTokenizer() {
   }
 }

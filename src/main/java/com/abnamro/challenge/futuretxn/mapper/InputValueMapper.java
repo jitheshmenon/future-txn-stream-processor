@@ -10,9 +10,9 @@ import static com.abnamro.challenge.futuretxn.config.FieldConstants.QUANTITY_LON
 import static com.abnamro.challenge.futuretxn.config.FieldConstants.QUANTITY_SHORT;
 import static com.abnamro.challenge.futuretxn.config.FieldConstants.SUBACCOUNT_NUMBER;
 
-import com.abnamro.challenge.futuretxn.model.ClientInformation;
-import com.abnamro.challenge.futuretxn.model.InputRecord;
-import com.abnamro.challenge.futuretxn.model.ProductInformation;
+import com.abnamro.challenge.avro.ClientInformation;
+import com.abnamro.challenge.avro.InputRecord;
+import com.abnamro.challenge.avro.ProductInformation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.kstream.ValueMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
@@ -34,6 +34,7 @@ public class InputValueMapper implements ValueMapper<String, InputRecord> {
   @Override
   public InputRecord apply(final String value) {
 
+    final InputRecord inputRecord = new InputRecord();
     if (value == null || value.length() != 176) {
       log.error("The input value is invalid");
       throw new IllegalArgumentException("The input data is missing or in an invalid format");
@@ -42,28 +43,26 @@ public class InputValueMapper implements ValueMapper<String, InputRecord> {
     log.debug("Input is -> {}", value);
     FieldSet fieldSet = fixedLengthTokenizer.tokenize(value);
 
-    final ClientInformation clientInformation = ClientInformation.builder()
-        .accountNumber(fieldSet.readInt(ACCOUNT_NUMBER))
-        .clientNumber(fieldSet.readInt(CLIENT_NUMBER))
-        .clientType(fieldSet.readString(CLIENT_TYPE))
-        .subAccountNumber(fieldSet.readInt(SUBACCOUNT_NUMBER))
-        .build();
+    final ClientInformation clientInformation = new ClientInformation();
+    clientInformation.setAccountNumber(fieldSet.readInt(ACCOUNT_NUMBER));
+    clientInformation.setClientNumber(fieldSet.readInt(CLIENT_NUMBER));
+    clientInformation.setClientType(fieldSet.readString(CLIENT_TYPE));
+    clientInformation.setSubAccountNumber(fieldSet.readInt(SUBACCOUNT_NUMBER));
 
-    final ProductInformation productInformation = ProductInformation.builder()
-        .exchangeCode(fieldSet.readString(ACCOUNT_NUMBER))
-        .productGroupCode(fieldSet.readString(PRODUCT_GROUP_CODE))
-        .expirationDate(fieldSet.readDate(EXPIRATION_DATE, DATE_FORMAT))
-        .symbol(fieldSet.readString("SYMBOL"))
-        .build();
+    final ProductInformation productInformation = new ProductInformation();
+    productInformation.setExchangeCode(fieldSet.readString(ACCOUNT_NUMBER));
+    productInformation.setProductGroupCode(fieldSet.readString(PRODUCT_GROUP_CODE));
+    productInformation.setExpirationDate(fieldSet.readDate(EXPIRATION_DATE, DATE_FORMAT).toString());
+    productInformation.setSymbol(fieldSet.readString("SYMBOL"));
 
     final int totalTxnAmount = fieldSet.readInt(QUANTITY_LONG) - fieldSet.readInt(QUANTITY_SHORT);
 
-    return InputRecord.builder()
-        .clientInformation(clientInformation)
-        .productInformation(productInformation)
-        .transactionAmount(totalTxnAmount)
-        .externalNumber(fieldSet.readString(EXTERNAL_NUMBER))
-        .build();
+    inputRecord.setClientInformation(clientInformation);
+    inputRecord.setProductInformation(productInformation);
+    inputRecord.setTransactionAmount(totalTxnAmount);
+    inputRecord.setExternalNumber(fieldSet.readString(EXTERNAL_NUMBER));
+
+    return inputRecord;
   }
 
   @Bean

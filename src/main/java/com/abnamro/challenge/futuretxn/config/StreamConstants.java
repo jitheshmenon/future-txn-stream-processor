@@ -9,5 +9,5 @@ public final class StreamConstants {
 
   public static final String EVENT_INPUT = "input";
 
-  public static final String EVENT_OUTPUT = "output";
+  public static final String INPUT_FORMATTED = "input-formatted";
 }
