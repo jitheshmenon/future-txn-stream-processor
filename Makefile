@@ -37,6 +37,9 @@ verify: 	## Run integration tests
 run-local: ## Execute the Kafka stream processor locally
 	mvn -Dspring.profiles.active=local spring-boot:run
 
+test-api: ## Call the REST API
+	curl --location --request GET 'http://localhost:8080/txn-amount' --header 'Content-Type: application/json'
+
 kafdrop-local:
 	docker run -d --rm -p 9990:9000 \
 	   -e KAFKA_BROKERCONNECT=broker:9092 \
