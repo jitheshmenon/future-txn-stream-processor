@@ -35,7 +35,7 @@ public class Controller {
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/txn-amount",
       produces = {MediaType.APPLICATION_JSON_VALUE})
-  @ApiOperation("Provide Frequent Flyers with the ability to claim points for their flights.")
+  @ApiOperation("Get the transaction summary per customer and product")
   @ApiResponses({
       @ApiResponse(code = SC_ACCEPTED, message = "Accepted", response = Map.class),
       @ApiResponse(code = SC_BAD_REQUEST, message = "Bad Request", response = ApiError.class),
