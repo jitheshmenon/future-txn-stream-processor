@@ -15,7 +15,7 @@
 	<description>Future transaction processor on Kafka Streams</description>
 
 	<properties>
-		<avro.version>1.8.2</avro.version>
+		<avro.version>1.11.3</avro.version>
 		<confluent.version>4.0.0</confluent.version>
 		<java.version>11</java.version>
 		<avro.version>1.9.1</avro.version>
